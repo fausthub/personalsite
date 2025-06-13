@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+* { box-sizing: border-box; }
+
+#root {
+  
+  padding: 0;
+  margin: 0 auto;          
+  max-width: 1280px;
+}
+
+html,body {
+  margin: 0;
+  font-family: 'EB Garamond', serif;
+  overflow-x: hidden;         
+}
+
+.app-wrapper      { position: relative; min-height: 100vh; }
+.background-layer {
+  position: fixed;
+  inset: 0;
+  background: #2E2E2E url('/bg_main_08.png') repeat top left;
+  background-size: 256px;
+  z-index: -1;
+  transition: filter .4s ease;
+  pointer-events: none;
+}
+.background-layer.dark { filter: invert(1) hue-rotate(180deg) brightness(.9); }
+
+.content-layer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;     
+}
+
+
+.page-wrapper   { 
+  position: relative; 
+  width: 700px; 
+  height: 500px; 
+  margin: 80px auto; 
+  box-shadow:
+      0   3px   6px  rgba(0,0,0,.18),   
+      0  12px  25px -5px rgba(0,0,0,.28);
+}
+.page           { display: flex; width: 100%; height: 100%; }
+
+.page-wrapper::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:2px;
+  background:#000;
+  opacity:.05;
+  filter:blur(4px);
+  transform:translate(2px,2px);
+  z-index:-1;               /* stays between paper and bg grid */
+}
+
+
+.tape{
+  position: absolute;
+  background: rgba(255,255,255,.55);
+  box-shadow: 0 2px 6px rgba(0,0,0,.30);
+  pointer-events: none;
+}
+.tape-top-left      { width:120px; height:40px;  top:-10px; left:-20px;  transform:rotate(-20deg); }
+.tape-bottom-right  { width:120px; height:28px;  bottom:-10px; right:-40px;transform:rotate(310deg); }
+
+
+.main-box{
+  background:#2E2E2E;     
+  color:#F0ECE6;
+  flex:1;                    
+  display:flex;
+  flex-direction:column;
+  align-items:center;        
+  justify-content:flex-start;
+  text-align:center;
+  padding:30px;              
+}
+.title        { 
+  font-family:'EB Garamond',serif; 
+  font-weight:700; 
+  font-size:1rem; 
+  margin-left: 50px;
+}
+.theme-toggle { margin:40px 0 20px; padding:.6rem 1.4rem; cursor:pointer; }
+.card         { margin-bottom:20px; }
+.read-the-docs{ color:#888; font-size:.9rem; }
+
+/* 1. Wrapper keeps the same perspective */
+.theme-icon{
+  background:none;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  perspective:800px;
+}
+
+/* 2. Pivot on the TOP edge now */
+.theme-icon img{
+  display:block;
+  transform-origin:top center;    /* ⬅️  hinge at the top */
+  backface-visibility:hidden;
+  will-change:transform;
+}
+
+/* 3. Keyframes: swing bottom toward viewer, then settle */
+@keyframes tarotLiftTopHinge{
+  0%   { transform:rotateX(0deg)   translateZ(0px); }
+  100% { transform:rotateX(16deg)  translateZ(30px); }
+}
+
+@keyframes tarotDropTopHinge{
+  from { transform:rotateX(12deg) translateZ(26px); }
+  to   { transform:rotateX(0deg)  translateZ(0px); }
+}
+
+/* remove UA ring when the button gets focus via mouse */
+.theme-icon:focus{
+  outline:none;           /* clears the old outline */
+  box-shadow:none;        /* clears the fallback ring */
+}
+
+/* keep an accessible cue for keyboard navigation only */
+.theme-icon:focus-visible{
+  outline:2px dashed #888; /* or whatever style you like */
+  box-shadow:none;         /* be explicit */
+  outline-offset:4px;
+}
+
+/* 4. Apply on hover / focus */
+.theme-icon:hover img,
+.theme-icon:focus-visible img{
+  animation:tarotLiftTopHinge .7s cubic-bezier(.25,.8,.25,1) forwards;
+}
+
+/* 5. Reverse when pointer leaves / focus moves away */
+.theme-icon img:not(:hover):not(:focus-visible){
+  animation:tarotDropTopHinge .45s ease forwards;
+}
+
+/* 6. Motion-safety */
+@media (prefers-reduced-motion: reduce){
+  .theme-icon img{ animation:none !important; transform:none !important; }
+}
+
+
+
+.page-title{ 
+  text-align:center; 
+  margin:0 auto 1.5rem; }
