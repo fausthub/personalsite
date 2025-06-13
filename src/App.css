@@ -92,59 +92,111 @@ html,body {
 .card         { margin-bottom:20px; }
 .read-the-docs{ color:#888; font-size:.9rem; }
 
-/* 1. Wrapper keeps the same perspective */
+
+.card-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;         
+  object-position:center;  
+  display:block;            
+  pointer-events:none;     
+}
+
+.card-crop{
+  display:inline-block;
+  width:280px;            
+  height:500px;           
+  overflow:hidden;        
+  pointer-events:auto;    
+}
+
+.card-crop img{
+  width:500px;            
+  height:500px;
+  object-fit:contain;     
+  object-position:center; 
+  pointer-events:none;   
+}
+
 .theme-icon{
+  position:relative;
   background:none;
   border:none;
   padding:0;
   cursor:pointer;
   perspective:800px;
+  z-index:100;
+  width:180px;              
+  aspect-ratio:5 / 8;      
+  overflow:hidden;  
+  animation:cardBob 3.6s ease-in-out infinite alternate;
 }
 
-/* 2. Pivot on the TOP edge now */
+.theme-icon::after{
+  content:'';
+  position:absolute;
+  left:50%;
+  bottom:-6px;                 
+  width:70%;
+  height:18px;
+  transform:translateX(-50%) scale(.9);
+  background:radial-gradient(ellipse at center,
+              rgba(0,0,0,.35) 0%, rgba(0,0,0,0) 70%);
+  opacity:.25;
+  filter:blur(4px);
+  pointer-events:none;
+  z-index:-1;                 
+  animation:shadowPulse 3.6s ease-in-out infinite alternate;
+}
+
 .theme-icon img{
   display:block;
-  transform-origin:top center;    /* ⬅️  hinge at the top */
+  transform-origin:center;
   backface-visibility:hidden;
   will-change:transform;
+  animation:cardTilt 6.3s ease-in-out infinite alternate;
 }
 
-/* 3. Keyframes: swing bottom toward viewer, then settle */
-@keyframes tarotLiftTopHinge{
-  0%   { transform:rotateX(0deg)   translateZ(0px); }
-  100% { transform:rotateX(16deg)  translateZ(30px); }
+@keyframes cardBob{
+  from{ transform:translateY(-8px); }
+  to  { transform:translateY( 8px);  }
 }
 
-@keyframes tarotDropTopHinge{
-  from { transform:rotateX(12deg) translateZ(26px); }
-  to   { transform:rotateX(0deg)  translateZ(0px); }
+@keyframes cardTilt{
+  0%   { transform:rotateZ(-3deg)  rotateX(-2deg); }
+  50%  { transform:rotateZ( 3deg)  rotateX( 2deg); }
+  100% { transform:rotateZ(-3deg)  rotateX(-2deg); }
 }
 
-/* remove UA ring when the button gets focus via mouse */
-.theme-icon:focus{
-  outline:none;           /* clears the old outline */
-  box-shadow:none;        /* clears the fallback ring */
-}
-
-/* keep an accessible cue for keyboard navigation only */
+.theme-icon:hover,                
 .theme-icon:focus-visible{
-  outline:2px dashed #888; /* or whatever style you like */
-  box-shadow:none;         /* be explicit */
+  animation-duration:1.2s;        
+}
+
+.theme-icon:hover img,            
+.theme-icon:focus-visible img{
+  animation:cardTilt 2.1s ease-in-out infinite alternate,
+           cardPulse .6s ease-in-out infinite;
+}
+
+@keyframes cardPulse{
+  0%,100%{ transform:rotateZ(0deg); }
+  50%    { transform:rotateZ(1.5deg); }
+}
+
+
+.theme-icon:focus{
+  outline:none;          
+  box-shadow:none;        
+}
+
+.theme-icon:focus-visible{
+  outline:2px dashed #888; 
+  box-shadow:none;         
   outline-offset:4px;
 }
 
-/* 4. Apply on hover / focus */
-.theme-icon:hover img,
-.theme-icon:focus-visible img{
-  animation:tarotLiftTopHinge .7s cubic-bezier(.25,.8,.25,1) forwards;
-}
 
-/* 5. Reverse when pointer leaves / focus moves away */
-.theme-icon img:not(:hover):not(:focus-visible){
-  animation:tarotDropTopHinge .45s ease forwards;
-}
-
-/* 6. Motion-safety */
 @media (prefers-reduced-motion: reduce){
   .theme-icon img{ animation:none !important; transform:none !important; }
 }
@@ -154,3 +206,34 @@ html,body {
 .page-title{ 
   text-align:center; 
   margin:0 auto 1.5rem; }
+
+
+  .info-box{
+  position:absolute;
+  width:240px;
+  max-width:90%;
+  background:#fff;
+  color:#222;
+  padding:1rem 1.25rem;
+  border-radius:6px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+  opacity:0;
+  transform:translateY(12px) scale(.94);
+  transition:
+      opacity   .35s ease     .25s,   /* starts after blur finishes */
+      transform .35s ease     .25s;
+  z-index: ninetyfive;                  /* above blur, below card */
+  pointer-events:auto;
+  font-family:'EB Garamond',serif;
+}
+
+/* specific placement */
+.info-box.left  { top:55%; left:-260px; }
+.info-box.right { top:55%; right:-260px; }
+
+/* fade / slide in once the card is hovered / focused */
+.app-wrapper:has(.theme-icon:hover) .info-box,
+.app-wrapper:has(.theme-icon:focus-visible) .info-box{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
